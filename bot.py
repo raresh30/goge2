@@ -34,7 +34,10 @@ async def iele(ctx):
 async def challenge(ctx, query, ans):
     if ctx.author.id != ADMIN:
         return
-    await ctx.send(query)
+    global correct_challenge
+    correct_challenge = str(ans)
+    channel = bot.get_channel(CHALLENGE_CHANNEL)
+    await channel.send(query)
 
 @bot.command(name="answer", help="sa dai raspunsul la challenge")
 async def answer(ctx, ans):
