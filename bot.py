@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+CHALLENGE_CHANNEL = 1192740543042682890
+ADMIN = 885074776467578900
+
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -19,8 +22,27 @@ poze_cu_iele = [
     "https://miro.medium.com/v2/resize:fit:1400/1*hVhsJ8ZhOGQn3idWpoFt2w.jpeg"
 ]
 
+correct = ""
+
 @bot.command(name="iele", help="iti arata niste iele")
 async def iele(ctx):
     await ctx.send(random.choice(poze_cu_iele))
+
+@bot.command(name="challenge", help="face un challenge")
+async def challenge(ctx, ans):
+    if ctx.author.id != ADMIN:
+        return
+    global correct
+    correct = str(ans)
+    channel = bot.get_channel(CHALLENGE_CHANNEL)
+    await channel.send("PROBLEMA ZILEI: dandu-se 2 numere a si b, sa se afiseze suma lor.")
+
+@bot.command(name="answer", help="sa dai raspunsul la challenge")
+async def answer(ctx, ans):
+    global correct
+    if ans != correct:
+        await ctx.send("WA")
+    else:
+        await ctx.send("AC")
 
 bot.run(TOKEN)
