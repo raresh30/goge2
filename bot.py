@@ -29,13 +29,13 @@ async def iele(ctx):
     await ctx.send(random.choice(poze_cu_iele))
 
 @bot.command(name="challenge", help="face un challenge")
-async def challenge(ctx, ans):
+async def challenge(ctx, query, ans):
     if ctx.author.id != ADMIN:
         return
     global correct
     correct = str(ans)
     channel = bot.get_channel(CHALLENGE_CHANNEL)
-    await channel.send("PROBLEMA ZILEI: dandu-se 2 numere a si b, sa se afiseze suma lor.")
+    await channel.send(query)
 
 @bot.command(name="answer", help="sa dai raspunsul la challenge")
 async def answer(ctx, ans):
