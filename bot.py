@@ -3,6 +3,7 @@ import discord
 import random
 from discord.ext import commands
 from dotenv import load_dotenv
+import asyncio
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -68,8 +69,8 @@ async def trivia(ctx):
 
     await ctx.send(f"{ctx.author.mention}, intrebare: {question}")
 
-    trivia_active[ctx.author.id] = True 
-
+    trivia_active[ctx.author.id] = True
+    
     try:
         response = await bot.wait_for("message", check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=15.0)
     except asyncio.TimeoutError:
