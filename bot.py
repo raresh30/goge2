@@ -22,7 +22,7 @@ poze_cu_iele = [
     "https://miro.medium.com/v2/resize:fit:1400/1*hVhsJ8ZhOGQn3idWpoFt2w.jpeg"
 ]
 
-correct = ""
+challenge_answer = ""
 
 @bot.command(name="iele", help="iti arata niste iele")
 async def iele(ctx):
@@ -32,15 +32,15 @@ async def iele(ctx):
 async def challenge(ctx, query, ans):
     if ctx.author.id != ADMIN:
         return
-    global correct
-    correct = str(ans)
+    global challenge_answer
+    challenge_answer = ans
     channel = bot.get_channel(CHALLENGE_CHANNEL)
     await channel.send(query)
 
 @bot.command(name="answer", help="sa dai raspunsul la challenge")
 async def answer(ctx, ans):
-    global correct
-    if ans != correct:
+    global challenge_answer
+    if ans != challenge_answer:
         await ctx.send("WA")
     else:
         await ctx.send("AC")
