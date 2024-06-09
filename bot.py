@@ -76,7 +76,7 @@ async def trivia(ctx):
     except asyncio.TimeoutError:
         await ctx.send(f"{ctx.author.mention}, a expirat timpul! Raspunsul corect era: {correct_trivia}")
     else:
-        if response.content.strip().lower() == correct_trivia.lower():
+        if response.content.strip().lower() == correct_trivia.lower() and response.content.strip().lower() != "!trivia":
             await ctx.send(f"{ctx.author.mention}, felicitari! Raspunsul tau a fost corect.")
         else:
             await ctx.send(f"{ctx.author.mention}, raspunsul tau este gresit. Raspunsul corect era: {correct_trivia}")
