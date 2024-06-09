@@ -14,6 +14,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 correct_challenge = ""
 correct_trivia = ""
+trivia_active = {} # Jucatorii activi de Trivia
 
 @bot.command(name="iele", help="iti arata niste iele")
 async def iele(ctx):
@@ -46,6 +47,12 @@ async def answer(ctx, ans):
 
 @bot.command(name="trivia", help="incepi un joc de trivia")
 async def trivia(ctx):
+    global correct_trivia, trivia_active
+
+    if ctx.author.id in trivia_active:
+        await ctx.send("Ai deja un joc de trivia activ. Asteapta pana il termini.")
+        return
+
     trivia_data = [
         {"question": "Care este capitala Frantei?", "answer": "Paris"},
         {"question": "Cine a scris 'Romeo si Julieta'?", "answer": "William Shakespeare"},
@@ -57,22 +64,23 @@ async def trivia(ctx):
 
     trivia_question = random.choice(trivia_data)
     question = trivia_question["question"]
-    global correct_trivia
     correct_trivia = trivia_question["answer"]
-    
-    await ctx.send(f"Intrebare: {question}")
 
-    def check(m):
-        return m.author == ctx.author and m.channel == ctx.channel
+    await ctx.send(f"{ctx.author.mention}, intrebare: {question}")
+
+    trivia_active[ctx.author.id] = True 
 
     try:
-        response = await bot.wait_for("message", check=check, timeout=15.0)
+        response = await bot.wait_for("message", check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=15.0)
     except asyncio.TimeoutError:
-        await ctx.send("A exiprat timpul! Raspunsul corect era: " + correct_trivia)
+        await ctx.send(f"{ctx.author.mention}, a expirat timpul! Raspunsul corect era: {correct_trivia}")
     else:
         if response.content.strip().lower() == correct_trivia.lower():
-            await ctx.send("Raspuns corect!")
+            await ctx.send(f"{ctx.author.mention}, felicitari! Raspunsul tau a fost corect.")
         else:
-            await ctx.send("Raspuns incorect. Raspunsul corect era: " + correct_trivia)
+            await ctx.send(f"{ctx.author.mention}, raspunsul tau este gresit. Raspunsul corect era: {correct_trivia}")
+
+    if ctx.author.id in trivia_active:
+        del trivia_active[ctx.author.id] 
 
 bot.run(TOKEN)
