@@ -6,6 +6,7 @@ import asyncio
 import unidecode
 from discord.ext import commands
 from dotenv import load_dotenv
+import html
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
