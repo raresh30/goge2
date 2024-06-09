@@ -22,27 +22,59 @@ poze_cu_iele = [
     "https://miro.medium.com/v2/resize:fit:1400/1*hVhsJ8ZhOGQn3idWpoFt2w.jpeg"
 ]
 
-correct = ""
+# Lista de întrebări și răspunsuri pentru trivia
+trivia_data = [
+    {"question": "Care este capitala Franței?", "answer": "Paris"},
+    {"question": "Cine a scris 'Romeo și Julieta'?", "answer": "William Shakespeare"},
+    {"question": "Care este simbolul chimic pentru apa?", "answer": "H2O"},
+    {"question": "Care este cea mai înaltă mamiferă?", "answer": "Girafa"},
+    {"question": "În ce an s-a scufundat Titanicul?", "answer": "1912"}
+]
 
-@bot.command(name="iele", help="iti arata niste iele")
+correct_answer = ""
+
+@bot.command(name="iele", help="Îți arată niște iele")
 async def iele(ctx):
     await ctx.send(random.choice(poze_cu_iele))
 
-@bot.command(name="challenge", help="face un challenge")
+@bot.command(name="challenge", help="Face un challenge")
 async def challenge(ctx, query, ans):
     if ctx.author.id != ADMIN:
         return
-    global correct
-    correct = str(ans)
+    global correct_answer
+    correct_answer = str(ans)
     channel = bot.get_channel(CHALLENGE_CHANNEL)
     await channel.send(query)
 
-@bot.command(name="answer", help="sa dai raspunsul la challenge")
+@bot.command(name="answer", help="Să dai răspunsul la challenge")
 async def answer(ctx, ans):
-    global correct
-    if ans != correct:
+    global correct_answer
+    if ans != correct_answer:
         await ctx.send("WA")
     else:
         await ctx.send("AC")
+
+@bot.command(name="trivia", help="Începe un joc de trivia")
+async def trivia(ctx):
+    # Alegem o întrebare aleatorie
+    trivia_question = random.choice(trivia_data)
+    question = trivia_question["question"]
+    global correct_answer
+    correct_answer = trivia_question["answer"]
+    
+    await ctx.send(f"Întrebare: {question}")
+
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    try:
+        response = await bot.wait_for("message", check=check, timeout=15.0)
+    except asyncio.TimeoutError:
+        await ctx.send("Timpul a expirat! Răspunsul corect era: " + correct_answer)
+    else:
+        if response.content.strip().lower() == correct_answer.lower():
+            await ctx.send("Răspuns corect!")
+        else:
+            await ctx.send("Răspuns incorect. Răspunsul corect era: " + correct_answer)
 
 bot.run(TOKEN)
