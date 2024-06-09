@@ -47,6 +47,7 @@ async def answer(ctx, ans):
     else:
         await ctx.send("AC")
 
+
 @bot.command(name="trivia", help="incepi un joc de trivia")
 async def trivia(ctx):
     global trivia_active
@@ -61,10 +62,18 @@ async def trivia(ctx):
         return
 
     trivia_data = response.json()["results"][0]
-    question = trivia_data["question"]
-    correct_trivia = trivia_data["correct_answer"]
+    question = html.unescape(trivia_data["question"])
+    correct_trivia = html.unescape(trivia_data["correct_answer"])
+    incorrect_trivia = [html.unescape(answer) for answer in trivia_data["incorrect_answers"]]
+    all_answers = incorrect_trivia + [correct_trivia]
+    random.shuffle(all_answers)
 
-    await ctx.send(f"{ctx.author.mention}, intrebare: {question}")
+    formatted_question = format_question(question)
+
+    await ctx.send(f"{ctx.author.mention}, intrebare: {formatted_question}")
+
+    for index, answer in enumerate(all_answers, start=1):
+        await ctx.send(f"{index}. {answer}")
 
     trivia_active[ctx.author.id] = True
     
@@ -80,5 +89,8 @@ async def trivia(ctx):
 
     if ctx.author.id in trivia_active:
         del trivia_active[ctx.author.id] 
+
+def format_question(question):
+    return question.replace("&quot;", '"').replace("&#039;", "'").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
 
 bot.run(TOKEN)
