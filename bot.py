@@ -1,20 +1,21 @@
 import os
 import discord
 import random
+import requests
+import asyncio
+import unidecode
 from discord.ext import commands
 from dotenv import load_dotenv
-import asyncio
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 CHALLENGE_CHANNEL = 1192740543042682890
 ADMIN = 885074776467578900
+TRIVIA_API_URL = "https://opentdb.com/api.php?amount=1"
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-correct_challenge = ""
-correct_trivia = ""
 trivia_active = {} # Jucatorii activi de Trivia
 
 @bot.command(name="iele", help="iti arata niste iele")
@@ -48,24 +49,20 @@ async def answer(ctx, ans):
 
 @bot.command(name="trivia", help="incepi un joc de trivia")
 async def trivia(ctx):
-    global correct_trivia, trivia_active
+    global trivia_active
 
     if ctx.author.id in trivia_active:
         await ctx.send("Ai deja un joc de trivia activ. Asteapta pana il termini.")
         return
 
-    trivia_data = [
-        {"question": "Care este capitala Frantei?", "answer": "Paris"},
-        {"question": "Cine a scris 'Romeo si Julieta'?", "answer": "William Shakespeare"},
-        {"question": "Care este simbolul chimic pentru apa?", "answer": "H2O"},
-        {"question": "Care este cea mai inalta mamifera?", "answer": "Girafa"},
-        {"question": "In ce an s-a scufundat Titanicul?", "answer": "1912"},
-        {"question": "Cine este mai corpolent?", "answer": "Grasul"}
-    ]
+    response = requests.get(TRIVIA_API_URL)
+    if response.status_code != 200:
+        await ctx.send("Nu am putut prelua intrebarea de trivia momentan.")
+        return
 
-    trivia_question = random.choice(trivia_data)
-    question = trivia_question["question"]
-    correct_trivia = trivia_question["answer"]
+    trivia_data = response.json()["results"][0]
+    question = trivia_data["question"]
+    correct_trivia = trivia_data["correct_answer"]
 
     await ctx.send(f"{ctx.author.mention}, intrebare: {question}")
 
