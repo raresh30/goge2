@@ -79,7 +79,7 @@ async def trivia(ctx):
     trivia_active[ctx.author.id] = True
     
     try:
-        response = await bot.wait_for("message", check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=15.0)
+        response = await bot.wait_for("message", check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=45.0)
     except asyncio.TimeoutError:
         await ctx.send(f"{ctx.author.mention}, a expirat timpul! Raspunsul corect era: {correct_trivia}")
     else:
