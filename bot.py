@@ -78,7 +78,7 @@ async def trivia(ctx):
     else:
         if response.content.strip().lower() == correct_trivia.lower():
             await ctx.send(f"{ctx.author.mention}, felicitari! Raspunsul tau a fost corect.")
-        else:
+        elif response.content.strip().lower() != "!trivia": 
             await ctx.send(f"{ctx.author.mention}, raspunsul tau este gresit. Raspunsul corect era: {correct_trivia}")
 
     if ctx.author.id in trivia_active:
