@@ -118,6 +118,11 @@ async def trivia(ctx):
 
 @bot.command(name="ban", help="baneaza pe cineva de la acest bot")
 async def ban(ctx, user):
+    # autorul comenzii este banat: iesire imediata
+    if is_banned(ctx.author.id):
+        await ctx.send("Esti banat. Daca consideri ca este o greseala, "
+            "vorbeste cu un administrator.")
+        return
     # taie primele 2 si ultima litera din user, deoarece user-ul primit
     # este de forma <@1249284551570624606>
     user_id = user[2:-1]
@@ -133,6 +138,11 @@ async def ban(ctx, user):
 
 @bot.command(name="unban", help="pardoneste pe cineva de la acest bot")
 async def unban(ctx, user):
+    # autorul comenzii este banat: iesire imediata
+    if is_banned(ctx.author.id):
+        await ctx.send("Esti banat. Daca consideri ca este o greseala, "
+            "vorbeste cu un administrator.")
+        return
     # taie primele 2 si ultima litera din user, deoarece user-ul primit
     # este de forma <@1249284551570624606>
     user_id = user[2:-1]
