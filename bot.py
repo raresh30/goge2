@@ -3,16 +3,13 @@ import discord
 import random
 import requests
 import asyncio
-import unidecode
 from discord.ext import commands
 from dotenv import load_dotenv
-import html
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 CHALLENGE_CHANNEL = 1192740543042682890
 ADMIN = 885074776467578900
-TRIVIA_API_URL = "https://opentdb.com/api.php?amount=1"
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!', intents=intents)
@@ -48,7 +45,6 @@ async def answer(ctx, ans):
     else:
         await ctx.send("AC")
 
-
 @bot.command(name="trivia", help="incepi un joc de trivia")
 async def trivia(ctx):
     global trivia_active
@@ -57,7 +53,7 @@ async def trivia(ctx):
         await ctx.send("Ai deja un joc de trivia activ. Asteapta pana il termini.")
         return
 
-    response = requests.get(TRIVIA_API_URL)
+    response = requests.get("https://opentdb.com/api.php?amount=1")
     if response.status_code != 200:
         await ctx.send("Nu am putut prelua intrebarea de trivia momentan.")
         return
@@ -89,9 +85,37 @@ async def trivia(ctx):
             await ctx.send(f"{ctx.author.mention}, raspunsul tau este gresit. Raspunsul corect era: {correct_trivia}")
 
     if ctx.author.id in trivia_active:
-        del trivia_active[ctx.author.id] 
+        del trivia_active[ctx.author.id]
 
 def format_question(question):
     return question.replace("&quot;", '"').replace("&#039;", "'").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
+
+@bot.command(name="steag", help="ghiceste steagul")
+async def guessflag(ctx):
+    response = requests.get("https://restcountries.com/v3.1/all")
+    if response.status_code != 200:
+        await ctx.send("Nu am putut prelua steagul momentan.")
+        return
+
+    countries = response.json()
+    country = random.choice(countries)
+    flag_url = country["flags"]["png"]
+    country_name = country["name"]["common"]
+
+    await ctx.send("Ghiceste tara din imaginea urmatoare:")
+    await ctx.send(flag_url)
+
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    try:
+        response = await bot.wait_for("message", check=check, timeout=30.0)
+    except asyncio.TimeoutError:
+        await ctx.send(f"A expirat timpul! Raspunsul corect era: {country_name}")
+    else:
+        if response.content.strip().lower() == country_name.lower():
+            await ctx.send(f"Felicitari! Raspunsul tau a fost corect.")
+        else:
+            await ctx.send(f"Raspunsul tau este gresit. Raspunsul corect era: {country_name}")
 
 bot.run(TOKEN)
